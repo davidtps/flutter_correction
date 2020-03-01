@@ -1,7 +1,10 @@
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_correction/Translations.dart';
 import 'package:image_picker/image_picker.dart';
+
+import 'Application.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,6 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -28,6 +32,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  SpecificLocalizationDelegate _localeOverrideDelegate;
   String barcode = "";
   var _imgPath;
 
@@ -66,16 +71,34 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           InkWell(
             child: Text(
-              "上传",
+              "kkkk",
               style: TextStyle(fontSize: 24, color: Colors.black),
             ),
             onTap: () {
-              print("上传");
+              print(Translations.of(context).text("upload"));
             },
           )
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// 初始化一个新的Localization Delegate，有了它，当用户选择一种新的工作语言时，可以强制初始化一个新的Translations
+    _localeOverrideDelegate = new SpecificLocalizationDelegate(null);
+
+    // 保存这个方法的指针，当用户改变语言时，我们可以调用applic.onLocaleChanged(new Locale('en',''));，通过SetState()我们可以强制App整个刷新
+    applic.onLocaleChanged = onLocaleChange;
+  }
+
+  /// 改变语言时的应用刷新核心，每次选择一种新的语言时，都会创造一个新的SpecificLocalizationDelegate实例，强制Translations类刷新。
+  onLocaleChange(Locale locale) {
+    setState(() {
+      _localeOverrideDelegate = new SpecificLocalizationDelegate(locale);
+    });
   }
 
   /*认证图片控件*/
