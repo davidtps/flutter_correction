@@ -1,3 +1,4 @@
+@deprecated
 class LocalLanguage {
   Map<String, Map<String, String>> _localizedMap = {
     'en': {'upload': 'upload', 'zh': 'Chinese'},

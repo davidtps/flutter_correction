@@ -48,11 +48,11 @@ class Translations {
 
   static Future<Translations> load(Locale locale) async {
     Translations translations = new Translations(locale);
-    _localizedValues = _localizedMap[locale.languageCode];
-//    String jsonContent = await rootBundle
-//        .loadString("locale/string_${locale.languageCode}.json");
-//    print(jsonContent);
-//    _localizedValues = json.decode(jsonContent);
+//    _localizedValues = _localizedMap[locale.languageCode];
+    String jsonContent = await rootBundle
+        .loadString("locale/string_${locale.languageCode}.json");
+    print(jsonContent);
+    _localizedValues = json.decode(jsonContent);
     return translations;
   }
 
