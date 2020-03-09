@@ -27,6 +27,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   barcode_scan: ^2.0.1
   image_picker:  0.6.1
+  tflite: ^0.0.5
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +50,8 @@ flutter:
     - assets/image/default_select.png
     - locale/string_en.json
     - locale/string_zh.json
+    - assets/mobilenet_v1_1.0_224.tflite
+    - assets/mobilenet_v1_1.0_224.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

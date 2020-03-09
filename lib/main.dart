@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_correction/Translations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tflite/tflite.dart';
 
 import 'Application.dart';
 
@@ -43,6 +46,7 @@ class _MyApp extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    initTFlite();
 
     /// 初始化一个新的Localization Delegate，有了它，当用户选择一种新的工作语言时，可以强制初始化一个新的Translations
     _localeOverrideDelegate = new SpecificLocalizationDelegate(null);
@@ -57,6 +61,14 @@ class _MyApp extends State<MyApp> {
       _localeOverrideDelegate = new SpecificLocalizationDelegate(locale);
     });
   }
+
+  Future<void> initTFlite() async {
+    String res = await Tflite.loadModel(
+      model: "assets/mobilenet_v1_1.0_224.tflite",
+      labels: "assets/mobilenet_v1_1.0_224.txt",
+    );
+    print("result:$res");
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -70,7 +82,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String barcode = "";
-  var _imgPath;
+  File _imgPath;
 
   @override
   Widget build(BuildContext context) {
@@ -111,13 +123,28 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(fontSize: 24, color: Colors.black),
             ),
             onTap: () {
-              print(Translations.of(context).text("upload"));
-//              applic.onLocaleChanged(new Locale('en',''));
+              handleSelectImage(_imgPath);
             },
           )
         ],
       ),
     );
+  }
+
+  Future<void> handleSelectImage(File imgPath) async {
+    if (imgPath.path == null) return;
+    var recognitions = await Tflite.runModelOnImage(
+      path: imgPath.path,
+      // required
+      imageMean: 0.0,
+      // defaults to 117.0
+      imageStd: 255.0,
+      // defaults to 1.0
+      numResults: 2,
+      // defaults to 5
+      threshold: 0.2, // defaults to 0.1
+    );
+    print("handleSelectImage---result:$recognitions");
   }
 
   /*认证图片控件*/

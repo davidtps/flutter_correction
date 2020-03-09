@@ -24,6 +24,7 @@ class Translations {
   String text(String key) {
     if (_localizedValues == null) {
       print("shigekonga");
+      return "";
     }
     try {
       String value = _localizedValues[key];
