@@ -4,6 +4,9 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_correction/Translations.dart';
+import 'package:flutter_correction/network/NetUrl.dart';
+import 'package:flutter_correction/network/NetUtil.dart';
+import 'package:flutter_correction/utils/Toast.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tflite/tflite.dart';
@@ -89,6 +92,22 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: <Widget>[
+          InkWell(
+            child: Padding(
+              child: Icon(
+                Icons.scanner,
+                size: 30,
+                color: Colors.white,
+              ),
+              padding: EdgeInsets.all(5),
+            ),
+            onTap: () {
+              print("跳转二维码扫描");
+              scan();
+            },
+          )
+        ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -97,17 +116,17 @@ class _MyHomePageState extends State<MyHomePage> {
             barcode,
             style: TextStyle(fontSize: 24, color: Colors.black),
           ),
-          InkWell(
-            child: Text(
-              '二维码扫描',
-              style: TextStyle(fontSize: 30, color: Colors.red),
-            ),
-            onTap: () {
-              print("跳转二维码扫描");
-              scan();
-//                RouteManager.jumpPageCommon(context, QrCodePage());
-            },
-          ),
+//          InkWell(
+//            child: Text(
+//              '二维码扫描',
+//              style: TextStyle(fontSize: 30, color: Colors.red),
+//            ),
+//            onTap: () {
+//              print("跳转二维码扫描");
+//              scan();
+////                RouteManager.jumpPageCommon(context, QrCodePage());
+//            },
+//          ),
           GestureDetector(
             child: Container(
               child: _select_ImageView(_imgPath),
@@ -124,6 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             onTap: () {
               handleSelectImage(_imgPath);
+              submitPointValue();
             },
           )
         ],
@@ -132,7 +152,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> handleSelectImage(File imgPath) async {
-    if (imgPath.path == null) return;
+    if (imgPath == null || imgPath.path == null) {
+      print("image path is null");
+      return;
+    }
     var recognitions = await Tflite.runModelOnImage(
       path: imgPath.path,
       // required
@@ -228,6 +251,8 @@ class _MyHomePageState extends State<MyHomePage> {
       barcode = await BarcodeScanner.scan();
       setState(() {
         this.barcode = barcode;
+        NetUrl.BASE_URL = barcode;
+        connectServer();
       });
       print('扫码结果: ' + barcode);
     } on PlatformException catch (e) {
@@ -245,5 +270,25 @@ class _MyHomePageState extends State<MyHomePage> {
       // 扫码错误
       print('扫码错误: $e');
     }
+  }
+
+  void connectServer() {
+    NetUtil.connectServer(success: (data) {
+      print("链接成功");
+    }, failure: (error) {
+      print("链接失败，error：" + error);
+    });
+  }
+
+  void submitPointValue() {
+    Map<String, String> params = Map();
+    params["value"] = "9-0-8-99";
+    NetUtil.submitPointValue(params, success: (data) {
+      print(data);
+      Toast.toast(context, msg: data);
+    }, failure: (error) {
+      print(error);
+      Toast.toast(context, msg: error);
+    });
   }
 }
