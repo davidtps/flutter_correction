@@ -67,10 +67,11 @@ class _MyApp extends State<MyApp> {
 
   Future<void> initTFlite() async {
     String res = await Tflite.loadModel(
-      model: "assets/mobilenet_v1_1.0_224.tflite",
-      labels: "assets/mobilenet_v1_1.0_224.txt",
+//      model: "assets/mobilenet_v1_1.0_224.tflite",
+//      labels: "assets/mobilenet_v1_1.0_224.txt",
+      model: "assets/model_correction.tflite",
     );
-    print("result:$res");
+    print("========================result:$res");
   }
 }
 
@@ -143,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             onTap: () {
               handleSelectImage(_imgPath);
-              submitPointValue();
+//              submitPointValue();
             },
           )
         ],
@@ -156,17 +157,19 @@ class _MyHomePageState extends State<MyHomePage> {
       print("image path is null");
       return;
     }
-    var recognitions = await Tflite.runModelOnImage(
+//    var recognitions = await Tflite.runModelOnImage(
+//      path: imgPath.path,
+//
+////      imageMean: 0.0, // defaults to 117.0
+////      imageStd: 255.0,// defaults to 1.0
+//      numResults: 12,// defaults to 5
+////      threshold: 0.2, // defaults to 0.1
+//    );
+    var recognitions = await Tflite.detectObjectOnImage(
       path: imgPath.path,
-      // required
-      imageMean: 0.0,
-      // defaults to 117.0
-      imageStd: 255.0,
-      // defaults to 1.0
-      numResults: 2,
-      // defaults to 5
-      threshold: 0.2, // defaults to 0.1
+
     );
+
     print("handleSelectImage---result:$recognitions");
   }
 
